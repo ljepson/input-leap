@@ -1976,8 +1976,26 @@ void Server::onMouseWheel(std::int32_t xDelta, std::int32_t yDelta)
 	LOG_DEBUG1("onMouseWheel %+d,%+d", xDelta, yDelta);
 	assert(m_active != nullptr);
 
+	// Apply scroll delta multiplier if configured for the active screen
+	// Allows per-screen customization of scroll wheel sensitivity
+	std::int32_t adjustedXDelta = xDelta;
+	std::int32_t adjustedYDelta = yDelta;
+
+	const Config::ScreenOptions* options = m_config->getOptions(m_active->getName());
+	if (options != nullptr) {
+		auto it = options->find(kOptionMouseScrollDelta);
+		if (it != options->end()) {
+			// Convert stored scaled integer back to float (divided by 1000)
+			float multiplier = static_cast<float>(it->second) / 1000.0f;
+			adjustedXDelta = static_cast<std::int32_t>(xDelta * multiplier);
+			adjustedYDelta = static_cast<std::int32_t>(yDelta * multiplier);
+			LOG_DEBUG2("scroll delta multiplier %.3f: %+d,%+d -> %+d,%+d",
+				multiplier, xDelta, yDelta, adjustedXDelta, adjustedYDelta);
+		}
+	}
+
 	// relay
-	m_active->mouseWheel(xDelta, yDelta);
+	m_active->mouseWheel(adjustedXDelta, adjustedYDelta);
 }
 
 void Server::on_file_chunk_sending(const FileChunk& chunk)

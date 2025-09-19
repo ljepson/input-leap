@@ -1,0 +1,1 @@
+Added mouseScrollDelta configuration option to adjust mouse scroll wheel sensitivity per screen. Supports positive values for faster scrolling, negative values for direction reversal, and decimal precision (e.g., 1.5, 0.5, -2.0). Configure in screen sections as: `mouseScrollDelta = 2.5`

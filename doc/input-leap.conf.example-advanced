@@ -22,8 +22,14 @@
 section: screens
 	# three computers that are logically named:  desktop1, desktop2, and laptop
 	desktop1:
+		# Double the scroll wheel speed on desktop1
+		mouseScrollDelta = 2.0
 	desktop2:
+		# Halve the scroll wheel speed on desktop2
+		mouseScrollDelta = 0.5
 	laptop:
+		# Reverse scroll direction on laptop (like natural scrolling)
+		mouseScrollDelta = -1.0
 end
 
 section: links
@@ -47,3 +53,13 @@ section: aliases
 	John-Smiths-MacBook-3.local:
 		laptop
 end
+
+# Screen Options Reference:
+#
+# mouseScrollDelta = <float>
+#   Adjusts mouse scroll wheel sensitivity for this screen.
+#   - Values > 1.0: Faster scrolling (e.g., 2.0 = double speed)
+#   - Values < 1.0: Slower scrolling (e.g., 0.5 = half speed)
+#   - Negative values: Reverse scroll direction (e.g., -1.0 = reversed)
+#   - Default: 1.0 (normal speed)
+#   - Examples: 2.5, 0.75, -1.5

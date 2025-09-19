@@ -841,6 +841,18 @@ Config::readSectionScreens(ConfigReadContext& s)
 				addOption(screen, kOptionHalfDuplexScrollLock,
 					s.parseBoolean(value));
 			}
+			else if (name == "mouseScrollDelta") {
+				// Parse scroll wheel sensitivity multiplier (supports decimal values)
+				// Values: >1.0 faster, <1.0 slower, negative reverses direction
+				char* end;
+				double tmp = strtod(value.c_str(), &end);
+				if (*end != '\0') {
+					throw XConfigRead(s, "invalid float argument \"%{1}\"", value);
+				}
+				// Store as scaled integer (multiply by 1000 for precision)
+				OptionValue scaledValue = static_cast<OptionValue>(tmp * 1000.0);
+				addOption(screen, kOptionMouseScrollDelta, scaledValue);
+			}
 			else if (name == "shift") {
 				addOption(screen, kOptionModifierMapForShift,
 					s.parseModifierKey(value));
@@ -1275,6 +1287,9 @@ Config::getOptionName(OptionID id)
 	if (id == kOptionHalfDuplexScrollLock) {
 		return "halfDuplexScrollLock";
 	}
+	if (id == kOptionMouseScrollDelta) {
+		return "mouseScrollDelta";
+	}
 	if (id == kOptionModifierMapForShift) {
 		return "shift";
 	}
@@ -1392,6 +1407,9 @@ std::string Config::getOptionValue(OptionID id, OptionValue value)
 		id == kOptionScreenSwitchDelay ||
 		id == kOptionScreenSwitchTwoTap) {
 		return inputleap::string::sprintf("%d", value);
+	}
+	if (id == kOptionMouseScrollDelta) {
+		return inputleap::string::sprintf("%.3f", static_cast<float>(value) / 1000.0f);
 	}
 	if (id == kOptionScreenSwitchCorners) {
 		std::string result("none");
