@@ -24,9 +24,15 @@
 
 #include <memory>
 
+#ifndef INPUTLEAP_USE_NATIVE_AVAHI
 typedef int32_t  DNSServiceErrorType;
+#endif
 
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+class ZeroconfRegisterAvahi;
+#else
 class ZeroconfRegister;
+#endif
 class ZeroconfBrowser;
 class MainWindow;
 
@@ -41,7 +47,11 @@ public:
 private slots:
     void serverDetected(const QList<ZeroconfRecord>& list);
     void clientDetected(const QList<ZeroconfRecord>& list);
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+    void errorHandle(int errorCode);
+#else
     void errorHandle(DNSServiceErrorType errorCode);
+#endif
 
 private:
     bool registerService(bool server);
@@ -50,7 +60,11 @@ private:
     MainWindow* m_pMainWindow;
     ZeroconfServer m_zeroconfServer;
     std::unique_ptr<ZeroconfBrowser> zeroconf_browser_;
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+    std::unique_ptr<ZeroconfRegisterAvahi> zeroconf_register_;
+#else
     std::unique_ptr<ZeroconfRegister> zeroconf_register_;
+#endif
     bool m_ServiceRegistered;
 
     static const char* m_ServerServiceName;

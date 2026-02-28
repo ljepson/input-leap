@@ -18,14 +18,20 @@
 #include "ZeroconfService.h"
 
 #include "MainWindow.h"
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+#include "ZeroconfRegisterAvahi.h"
+#else
 #include "ZeroconfRegister.h"
+#endif
 #include "ZeroconfBrowser.h"
 
 #include <QtNetwork>
 #include <QMessageBox>
+#ifndef INPUTLEAP_USE_NATIVE_AVAHI
 #define _MSL_STDINT_H
 #include <stdint.h>
 #include <dns_sd.h>
+#endif
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -105,7 +111,11 @@ void ZeroconfService::clientDetected(const QList<ZeroconfRecord>& list)
     }
 }
 
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+void ZeroconfService::errorHandle(int errorCode)
+#else
 void ZeroconfService::errorHandle(DNSServiceErrorType errorCode)
+#endif
 {
     QMessageBox::critical(nullptr, tr("Zero configuration service"),
         tr("Error code: %1.").arg(errorCode));
@@ -123,7 +133,11 @@ bool ZeroconfService::registerService(bool server)
             result = false;
         }
         else {
+#ifdef INPUTLEAP_USE_NATIVE_AVAHI
+            zeroconf_register_ = std::make_unique<ZeroconfRegisterAvahi>(this);
+#else
             zeroconf_register_ = std::make_unique<ZeroconfRegister>(this);
+#endif
             if (server) {
                 zeroconf_register_->registerService(
                     ZeroconfRecord(tr("%1").arg(m_pMainWindow->getScreenName()),

@@ -40,3 +40,8 @@ bundle
 compile_commands.json
 # Cache (used by clangd)
 .cache
+INSTALL.md
+USAGE.md
+repomix-output.xml
+*.tmp
+build_avahi/

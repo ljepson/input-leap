@@ -53,11 +53,16 @@ set(GUI_SOURCE_FILES
     src/SslCertificate.cpp
     src/TrashScreenWidget.cpp
     src/ZeroconfBrowser.cpp
-    src/ZeroconfRegister.cpp
     src/ZeroconfServer.cpp
     src/ZeroconfService.cpp
     src/ZeroconfThread.cpp
 )
+
+if(INPUTLEAP_USE_NATIVE_AVAHI)
+    list(APPEND GUI_SOURCE_FILES src/ZeroconfRegisterAvahi.cpp)
+else()
+    list(APPEND GUI_SOURCE_FILES src/ZeroconfRegister.cpp)
+endif()
 
 set(GUI_HEADER_FILES
     src/AboutDialog.h
@@ -93,11 +98,16 @@ set(GUI_HEADER_FILES
     src/TrashScreenWidget.h
     src/ZeroconfBrowser.h
     src/ZeroconfRecord.h
-    src/ZeroconfRegister.h
     src/ZeroconfServer.h
     src/ZeroconfService.h
     src/ZeroconfThread.h
 )
+
+if(INPUTLEAP_USE_NATIVE_AVAHI)
+    list(APPEND GUI_HEADER_FILES src/ZeroconfRegisterAvahi.h)
+else()
+    list(APPEND GUI_HEADER_FILES src/ZeroconfRegister.h)
+endif()
 
 set(GUI_UI_FILES
     src/AboutDialog.ui
@@ -218,7 +228,12 @@ if (BUILD_CARBON)
     target_link_libraries(input-leap ${APPSERVICES_LIB})
 endif()
 if (BUILD_XWINDOWS OR BUILD_LIBEI)
-    target_link_libraries (input-leap dns_sd Threads::Threads)
+    if(INPUTLEAP_USE_NATIVE_AVAHI)
+        # Still need dns_sd for ZeroconfBrowser until we implement native Avahi browser
+        target_link_libraries (input-leap ${AVAHI_CLIENT_LIBRARIES} dns_sd Threads::Threads)
+    else()
+        target_link_libraries (input-leap dns_sd Threads::Threads)
+    endif()
 endif()
 
 target_link_libraries (input-leap common)
